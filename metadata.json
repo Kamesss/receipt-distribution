@@ -1,0 +1,6 @@
+{
+  "name": "TabSplit Edge Receipt OCR & Bill Splitter",
+  "description": "Itemized receipt OCR scanner and proportional tax and tip bill calculator architected for Cloudflare Workers with decoupled domain logic.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

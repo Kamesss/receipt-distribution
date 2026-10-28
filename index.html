@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TabSplit Edge Receipt OCR & Bill Splitter</title>
+    <meta name="description" content="Itemized receipt OCR scanner and proportional tax and tip bill calculator architected for Cloudflare Workers with decoupled domain logic." />
+    <meta property="og:title" content="TabSplit Edge Receipt OCR & Bill Splitter" />
+    <meta property="og:description" content="Itemized receipt OCR scanner and proportional tax and tip bill calculator architected for Cloudflare Workers with decoupled domain logic." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <script>
+      (function () {
+        try {
+          var currentFetch = window.fetch ? window.fetch.bind(window) : undefined;
+          if (currentFetch) {
+            Object.defineProperty(window, 'fetch', {
+              value: currentFetch,
+              writable: true,
+              configurable: true,
+              enumerable: true
+            });
+          }
+        } catch (_e) {
+          // Ignore if descriptor cannot be redefined
+        }
+
+        window.addEventListener(
+          'error',
+          function (event) {
+            if (
+              event &&
+              typeof event.message === 'string' &&
+              event.message.indexOf('Cannot set property fetch') !== -1
+            ) {
+              event.stopImmediatePropagation();
+              event.preventDefault();
+            }
+          },
+          true
+        );
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
