@@ -519,37 +519,6 @@ export default function App() {
                 <Upload className="h-4 w-4 text-emerald-600 shrink-0" />
                 <span>From Gallery</span>
               </button>
-
-              <button
-                type="button"
-                onClick={handleRunLiveOcrOnCurrentSample}
-                disabled={isScanningOcr}
-                className="col-span-2 sm:col-span-1 inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 active:scale-[0.98] disabled:opacity-50 transition-all whitespace-nowrap shrink-0 cursor-pointer"
-                title="Renders a Philippine Peso thermal receipt image and sends it through the /api/receipt/parse Worker OCR endpoint"
-              >
-                <Sparkles className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-                <span>Test Live AI OCR</span>
-              </button>
-
-              <div className="col-span-2 sm:col-span-1 flex items-center gap-1 rounded-xl bg-slate-100 p-1">
-                {SAMPLE_RECEIPT_PRESETS.map((preset) => {
-                  const isActive = receipt.merchantName === preset.receipt.merchantName;
-                  return (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => handleLoadSamplePreset(preset.id)}
-                      className={`flex-1 sm:flex-initial min-h-[36px] rounded-lg px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                        isActive
-                          ? 'bg-white text-slate-900 shadow-2xs'
-                          : 'text-slate-600 hover:text-slate-900'
-                      }`}
-                    >
-                      {preset.label.split(' ')[0]}
-                    </button>
-                  );
-                })}
-              </div>
             </div>
           </div>
 
@@ -892,64 +861,72 @@ export default function App() {
                 return (
                   <div
                     key={item.id}
-                    className={`py-4 first:pt-1 transition-opacity ${
+                    className={`py-4 first:pt-1 space-y-2.5 transition-opacity ${
                       isHighlightedByFilter ? 'opacity-100' : 'opacity-40'
                     }`}
                   >
-                    {/* Top Row: Qty, Item Name, Price in PHP, Delete */}
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <input
-                          type="number"
-                          min="1"
-                          step="1"
-                          aria-label="Quantity"
-                          value={item.quantity}
-                          onChange={(e) =>
-                            handleUpdateLineItem(item.id, 'quantity', e.target.value)
-                          }
-                          className="min-h-[40px] w-12 rounded-lg border border-slate-200 bg-slate-50 px-1.5 py-1 text-center text-xs font-mono tabular-nums text-slate-700 focus:border-blue-600 focus:bg-white focus:outline-hidden"
-                        />
+                    {/* Item Name + Controls: Stacked on mobile for 100% food name readability, inline on sm+ */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      {/* Full-width Food Name Input on Mobile */}
+                      <div className="w-full sm:flex-1 min-w-0">
                         <input
                           type="text"
                           aria-label="Item name"
                           value={item.name}
                           onChange={(e) => handleUpdateLineItem(item.id, 'name', e.target.value)}
-                          className="min-h-[40px] flex-1 min-w-0 rounded-lg border border-transparent hover:border-slate-200 focus:border-blue-600 bg-transparent px-2 py-1 text-sm font-semibold text-slate-900 focus:bg-white focus:outline-hidden"
+                          className="min-h-[42px] w-full rounded-xl border border-slate-200 sm:border-transparent hover:border-slate-200 focus:border-blue-600 bg-slate-50/70 sm:bg-transparent px-3 py-1.5 text-sm font-semibold text-slate-900 focus:bg-white focus:outline-hidden"
                         />
                       </div>
 
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <div className="relative flex items-center">
-                          <span className="pointer-events-none absolute left-2.5 text-xs font-mono text-slate-400">
-                            ₱
-                          </span>
+                      {/* Qty, Price in PHP, Share summary, and Delete button */}
+                      <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-medium text-slate-500 sm:hidden">Qty</span>
                           <input
                             type="number"
-                            min="0"
-                            step="0.01"
-                            aria-label="Item total price in Philippine Peso"
-                            value={item.totalPrice}
+                            min="1"
+                            step="1"
+                            aria-label="Quantity"
+                            value={item.quantity}
                             onChange={(e) =>
-                              handleUpdateLineItem(item.id, 'totalPrice', e.target.value)
+                              handleUpdateLineItem(item.id, 'quantity', e.target.value)
                             }
-                            className="min-h-[40px] w-28 rounded-lg border border-slate-200 bg-slate-50 pl-6 pr-2 py-1 text-right text-sm font-mono font-semibold tabular-nums text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-hidden"
+                            className="min-h-[40px] w-14 sm:w-12 rounded-xl border border-slate-200 bg-slate-50 px-2 py-1 text-center text-xs font-mono font-semibold tabular-nums text-slate-700 focus:border-blue-600 focus:bg-white focus:outline-hidden"
                           />
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteLineItem(item.id)}
-                          className="flex min-h-[40px] min-w-[40px] items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-red-600 transition-colors"
-                          aria-label={`Delete ${item.name}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        <div className="flex items-center gap-1.5 ml-auto sm:ml-0">
+                          <div className="relative flex items-center">
+                            <span className="pointer-events-none absolute left-2.5 text-xs font-mono text-slate-400">
+                              ₱
+                            </span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              aria-label="Item total price in Philippine Peso"
+                              value={item.totalPrice}
+                              onChange={(e) =>
+                                handleUpdateLineItem(item.id, 'totalPrice', e.target.value)
+                              }
+                              className="min-h-[40px] w-28 rounded-xl border border-slate-200 bg-slate-50 pl-6 pr-2.5 py-1 text-right text-sm font-mono font-semibold tabular-nums text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-hidden"
+                            />
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteLineItem(item.id)}
+                            className="flex min-h-[40px] min-w-[40px] items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-red-600 transition-colors"
+                            aria-label={`Delete ${item.name}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
                     {/* Thumb-Friendly Participant Selector Row (min-h-[44px] touch targets) */}
-                    <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
                       <div className="flex flex-wrap items-center gap-1.5">
                         {participants.map((person) => {
                           const isSelected = assignedIds.includes(person.id);
