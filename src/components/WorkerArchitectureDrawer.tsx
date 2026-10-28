@@ -47,8 +47,8 @@ export const WorkerArchitectureDrawer: React.FC<WorkerArchitectureDrawerProps> =
         { id: '2', name: 'Item B', quantity: 1, unitPrice: 600, totalPrice: 600 },
       ],
       [
-        { id: 'u1', name: 'Maya', initials: 'MS', colorHex: '#2563EB' },
-        { id: 'u2', name: 'Marco', initials: 'MR', colorHex: '#059669' },
+        { id: 'u1', name: 'James', initials: 'JA', colorHex: '#2563EB' },
+        { id: 'u2', name: 'Mikay', initials: 'MI', colorHex: '#059669' },
       ],
       { '1': ['u1'], '2': ['u2'] },
       {
@@ -61,18 +61,18 @@ export const WorkerArchitectureDrawer: React.FC<WorkerArchitectureDrawerProps> =
         tipFixedAmount: 80.0,
       }
     );
-    const maya = split.participants[0];
-    const marco = split.participants[1];
+    const james = split.participants[0];
+    const mikay = split.participants[1];
     results.push({
       name: '25% / 75% Proportional VAT & Service Charge Allocation',
       moduleName: 'billSplitCalculator.calculateBillSplit',
       passed:
-        maya.taxShare === 24.0 &&
-        marco.taxShare === 72.0 &&
-        maya.tipShare === 20.0 &&
-        marco.tipShare === 60.0 &&
-        maya.totalOwed + marco.totalOwed === 976.0,
-      assertionDetail: `Maya (25%): ₱${maya.totalOwed.toFixed(2)} (VAT ₱${maya.taxShare.toFixed(2)}, Tip ₱${maya.tipShare.toFixed(2)}) · Marco (75%): ₱${marco.totalOwed.toFixed(2)}`,
+        james.taxShare === 24.0 &&
+        mikay.taxShare === 72.0 &&
+        james.tipShare === 20.0 &&
+        mikay.tipShare === 60.0 &&
+        james.totalOwed + mikay.totalOwed === 976.0,
+      assertionDetail: `James (25%): ₱${james.totalOwed.toFixed(2)} (VAT ₱${james.taxShare.toFixed(2)}, Tip ₱${james.tipShare.toFixed(2)}) · Mikay (75%): ₱${mikay.totalOwed.toFixed(2)}`,
     });
 
     // Test 3: Shared Multi-Person Item & Unassigned Detection
@@ -82,8 +82,8 @@ export const WorkerArchitectureDrawer: React.FC<WorkerArchitectureDrawerProps> =
         { id: 'unassigned-2', name: 'Garlic Rice', quantity: 1, unitPrice: 240, totalPrice: 240 },
       ],
       [
-        { id: 'u1', name: 'Maya', initials: 'MS', colorHex: '#2563EB' },
-        { id: 'u2', name: 'Marco', initials: 'MR', colorHex: '#059669' },
+        { id: 'u1', name: 'James', initials: 'JA', colorHex: '#2563EB' },
+        { id: 'u2', name: 'Mikay', initials: 'MI', colorHex: '#059669' },
       ],
       { 'shared-1': ['u1', 'u2'] },
       {

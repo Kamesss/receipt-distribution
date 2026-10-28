@@ -17,10 +17,9 @@ export const PARTICIPANT_COLORS = [
 ];
 
 export const INITIAL_PARTICIPANTS: GroupParticipant[] = [
-  { id: 'p-1', name: 'Maya Santos', initials: 'MS', colorHex: '#2563EB' },
-  { id: 'p-2', name: 'Marco Reyes', initials: 'MR', colorHex: '#059669' },
-  { id: 'p-3', name: 'Bea Villanueva', initials: 'BV', colorHex: '#D97706' },
-  { id: 'p-4', name: 'Liam Cruz', initials: 'LC', colorHex: '#7C3AED' },
+  { id: 'p-1', name: 'James', initials: 'JA', colorHex: '#2563EB' },
+  { id: 'p-2', name: 'Mikay', initials: 'MI', colorHex: '#059669' },
+  { id: 'p-3', name: 'Jason', initials: 'JS', colorHex: '#D97706' },
 ];
 
 export interface SampleReceiptPreset {
@@ -117,13 +116,13 @@ export const SAMPLE_RECEIPT_PRESETS: SampleReceiptPreset[] = [
       total: 3885.7,
     },
     defaultAssignments: {
-      'item-1': ['p-1', 'p-2', 'p-3', 'p-4'],
-      'item-2': ['p-1', 'p-2', 'p-3', 'p-4'],
-      'item-3': ['p-1', 'p-3'],
-      'item-4': ['p-2', 'p-4'],
-      'item-5': ['p-1', 'p-2', 'p-3', 'p-4'],
+      'item-1': ['p-1', 'p-2', 'p-3'],
+      'item-2': ['p-1', 'p-2', 'p-3'],
+      'item-3': ['p-1', 'p-2'],
+      'item-4': ['p-3'],
+      'item-5': ['p-1', 'p-2', 'p-3'],
       'item-6': ['p-1', 'p-2'],
-      'item-7': ['p-3', 'p-4'],
+      'item-7': ['p-2', 'p-3'],
     },
   },
   {
@@ -192,12 +191,12 @@ export const SAMPLE_RECEIPT_PRESETS: SampleReceiptPreset[] = [
       total: 3535.6,
     },
     defaultAssignments: {
-      'm-1': ['p-2'],
-      'm-2': ['p-1'],
+      'm-1': ['p-1'],
+      'm-2': ['p-2'],
       'm-3': ['p-3'],
-      'm-4': ['p-4'],
-      'm-5': ['p-1', 'p-2', 'p-3', 'p-4'],
-      'm-6': ['p-1', 'p-2', 'p-3', 'p-4'],
+      'm-4': ['p-1', 'p-3'],
+      'm-5': ['p-1', 'p-2', 'p-3'],
+      'm-6': ['p-1', 'p-2', 'p-3'],
     },
   },
 ];
