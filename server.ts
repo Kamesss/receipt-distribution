@@ -7,12 +7,14 @@
  * and serves the Vite SPA frontend on port 3000.
  */
 
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import { routeWorkerRequest } from './workers.ts';
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +29,9 @@ async function startServer() {
   // Forward all `/api/*` requests through the Cloudflare Workers `routeWorkerRequest` handler
   app.all('/api/*splat', async (req, res) => {
     try {
+      if (!process.env.GEMINI_API_KEY) {
+        dotenv.config({ override: true });
+      }
       const protocol = req.protocol || 'http';
       const host = req.get('host') || `localhost:${PORT}`;
       const fullUrl = `${protocol}://${host}${req.originalUrl}`;
@@ -48,7 +53,7 @@ async function startServer() {
       });
 
       const workerResponse = await routeWorkerRequest(workerRequest, {
-        GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+        GEMINI_API_KEY: process.env.GEMINI_API_KEY || process.env.API_KEY || '',
       });
 
       res.status(workerResponse.status);
