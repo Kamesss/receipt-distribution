@@ -158,18 +158,62 @@ export default function App() {
     }
   };
 
-  const handleGalleryFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImageFileToDataUrl = (file: File): Promise<{ dataUrl: string; mimeType: string }> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Failed to read image file.'));
+      reader.onload = () => {
+        const rawDataUrl = reader.result as string;
+        const img = new Image();
+        img.onerror = () => resolve({ dataUrl: rawDataUrl, mimeType: file.type || 'image/jpeg' });
+        img.onload = () => {
+          const maxDim = 1400;
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve({ dataUrl: rawDataUrl, mimeType: file.type || 'image/jpeg' });
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL('image/jpeg', 0.85);
+          resolve({ dataUrl: compressed, mimeType: 'image/jpeg' });
+        };
+        img.src = rawDataUrl;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleGalleryFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        runReceiptOcr(reader.result, file.type || 'image/jpeg', file.name);
-      }
-    };
-    reader.readAsDataURL(file);
     e.target.value = '';
+
+    try {
+      const { dataUrl, mimeType } = await compressImageFileToDataUrl(file);
+      runReceiptOcr(dataUrl, mimeType, file.name);
+    } catch {
+      // Fallback to raw read if compression fails
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          runReceiptOcr(reader.result, file.type || 'image/jpeg', file.name);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleLoadSamplePreset = (presetId: string) => {
@@ -496,29 +540,6 @@ export default function App() {
                   {formatPhp(splitResult.grandTotal)}
                 </span>
               </div>
-            </div>
-
-            {/* Ergonomic Touch Action Buttons (min-h-[44px] on mobile) */}
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setIsCameraOpen(true)}
-                disabled={isScanningOcr}
-                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 active:scale-[0.98] disabled:opacity-50 transition-all whitespace-nowrap shrink-0 cursor-pointer"
-              >
-                <Camera className="h-4 w-4 text-blue-600 shrink-0" />
-                <span>Camera Scan</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isScanningOcr}
-                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 active:scale-[0.98] disabled:opacity-50 transition-all whitespace-nowrap shrink-0 cursor-pointer"
-              >
-                <Upload className="h-4 w-4 text-emerald-600 shrink-0" />
-                <span>From Gallery</span>
-              </button>
             </div>
           </div>
 
