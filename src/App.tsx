@@ -31,11 +31,10 @@ import {
 } from './types/receipt.ts';
 import { calculateBillSplit, fromCents, toCents } from './services/billSplitCalculator.ts';
 import {
+  EMPTY_RECEIPT,
   formatPhp,
   INITIAL_PARTICIPANTS,
   PARTICIPANT_COLORS,
-  renderSampleReceiptImageBase64,
-  SAMPLE_RECEIPT_PRESETS,
 } from './data/sampleReceipts.ts';
 import { ReceiptCameraModal } from './components/ReceiptCameraModal.tsx';
 import { WorkerArchitectureDrawer } from './components/WorkerArchitectureDrawer.tsx';
@@ -53,22 +52,20 @@ function getInitials(fullName: string): string {
 }
 
 export default function App() {
-  const preset0 = SAMPLE_RECEIPT_PRESETS[0];
-
-  const [receipt, setReceipt] = useState<ParsedReceiptData>(preset0.receipt);
+  const [receipt, setReceipt] = useState<ParsedReceiptData>(EMPTY_RECEIPT);
   const [participants, setParticipants] = useState<GroupParticipant[]>(INITIAL_PARTICIPANTS);
-  const [assignments, setAssignments] = useState<ItemAssignmentMap>(preset0.defaultAssignments);
+  const [assignments, setAssignments] = useState<ItemAssignmentMap>({});
   const [activeParticipantFilter, setActiveParticipantFilter] = useState<string>('all');
   const [mobileTab, setMobileTab] = useState<MobileTab>('items');
 
   const [taxTipConfig, setTaxTipConfig] = useState<TaxTipDistributionConfig>({
     mode: 'proportional',
-    customTaxAmount: preset0.receipt.tax,
-    customServiceFeeAmount: preset0.receipt.serviceFee,
-    customDiscountAmount: preset0.receipt.discount,
+    customTaxAmount: 0,
+    customServiceFeeAmount: 0,
+    customDiscountAmount: 0,
     tipMode: 'percentage',
-    tipPercentage: 10,
-    tipFixedAmount: preset0.receipt.tip,
+    tipPercentage: 0,
+    tipFixedAmount: 0,
   });
 
   const [receiptPreviewUrl, setReceiptPreviewUrl] = useState<string | null>(null);
@@ -214,34 +211,6 @@ export default function App() {
       };
       reader.readAsDataURL(file);
     }
-  };
-
-  const handleLoadSamplePreset = (presetId: string) => {
-    const found = SAMPLE_RECEIPT_PRESETS.find((p) => p.id === presetId);
-    if (!found) return;
-    setReceipt(found.receipt);
-    setAssignments(found.defaultAssignments);
-    setTaxTipConfig({
-      mode: 'proportional',
-      customTaxAmount: found.receipt.tax,
-      customServiceFeeAmount: found.receipt.serviceFee,
-      customDiscountAmount: found.receipt.discount,
-      tipMode: 'percentage',
-      tipPercentage: 10,
-      tipFixedAmount: found.receipt.tip,
-    });
-    const renderedImg = renderSampleReceiptImageBase64(found.receipt);
-    setReceiptPreviewUrl(renderedImg);
-    setOcrError(null);
-    setOcrStatusBanner(
-      `Loaded "${found.label}" preset (${formatPhp(found.receipt.total)}).`
-    );
-  };
-
-  const handleRunLiveOcrOnCurrentSample = () => {
-    const imgDataUrl = renderSampleReceiptImageBase64(receipt);
-    if (!imgDataUrl) return;
-    runReceiptOcr(imgDataUrl, 'image/png', `${receipt.merchantName} receipt`);
   };
 
   const handleAddParticipant = (e: React.FormEvent) => {
@@ -529,7 +498,7 @@ export default function App() {
                   <span>{participants.length} People</span>
                 </div>
                 <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-slate-900 truncate">
-                  {receipt.merchantName}
+                  {receipt.merchantName || 'New Receipt Split'}
                 </h1>
               </div>
 
@@ -710,10 +679,11 @@ export default function App() {
                   <input
                     type="text"
                     value={receipt.merchantName}
+                    placeholder="Enter restaurant or store name..."
                     onChange={(e) =>
                       setReceipt((prev) => ({ ...prev, merchantName: e.target.value }))
                     }
-                    className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-sm sm:text-xs font-medium text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-hidden"
+                    className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-sm sm:text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:bg-white focus:outline-hidden"
                   />
                 </div>
 
@@ -755,16 +725,9 @@ export default function App() {
                 </div>
               ) : (
                 <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-center">
-                  <p className="text-xs text-slate-500 mb-2">
-                    No receipt image preview active. Capture a photo or test live OCR on the current sample.
+                  <p className="text-xs text-slate-500">
+                    No receipt image uploaded yet. Tap Upload Receipt above to scan a receipt photo.
                   </p>
-                  <button
-                    type="button"
-                    onClick={handleRunLiveOcrOnCurrentSample}
-                    className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition-colors"
-                  >
-                    Generate &amp; Scan Sample Receipt
-                  </button>
                 </div>
               )}
             </section>
@@ -866,6 +829,13 @@ export default function App() {
             )}
 
             {/* Line Items Table / Touch Matrix */}
+            {receipt.items.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-8 text-center">
+                <p className="text-xs text-slate-500">
+                  No receipt items yet. Upload a receipt photo to extract items automatically or add an item below.
+                </p>
+              </div>
+            ) : (
             <div className="divide-y divide-slate-200">
               {receipt.items.map((item) => {
                 const assignedIds = assignments[item.id] || [];
@@ -1002,6 +972,7 @@ export default function App() {
                 );
               })}
             </div>
+            )}
 
             {/* Add New Manual Line Item Form */}
             <form
